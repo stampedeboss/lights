@@ -1,6 +1,3 @@
-import logging
-import sys
-
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import create_session
 from sqlalchemy.orm import relationship, backref
@@ -11,54 +8,31 @@ from sqlalchemy.orm import contains_eager, joinedload
 from sqlite3 import dbapi2 as sqlite
 from datetime import datetime
 
-from lights import logger
-from cmdoptions import CmdOptions
-from settings import Settings
 
-__pgmname__ = 'lights'
-
-log = logging.getLogger(__pgmname__)
+dsn = '/home/aj/PycharmProjects/Lights/Lights/Lights.sqlite'
+#Create and engine and get the metadata
 Base = declarative_base()
-
-
-class Lights(object):
-
-	from lights import logger
-	logger.initialize(level=logging.DEBUG)
-
-	settings = Settings()
-	cmdoptions = CmdOptions()
-	args = {}
-
-	log.debug("DB Engine Initialized")
-	# Create and engine and get the metadata
-	engine = create_engine('sqlite:////{}'.format(settings.DSN),
-	                       module=sqlite)
-	metadata = MetaData(bind=engine)
-
-	def __init__(self, **kwargs):
-
-		super(Lights, self).__init__()
-		return
+engine = create_engine('sqlite:////{}'.format(dsn), module=sqlite)
+metadata = MetaData(bind=engine)
 
 class CtlrModel(Base):
-	__table__ = Table('CtlrModel', Lights.metadata, autoload=True)
+	__table__ = Table('CtlrModel', metadata, autoload=True)
 
 class Controller(Base):
-	__table__ = Table('Controller', Lights.metadata, autoload=True)
+	__table__ = Table('Controller', metadata, autoload=True)
 	model = relationship("CtlrModel", backref="controller")
 
 class CtlrConnector(Base):
-	__table__ = Table('CtlrConnector', Lights.metadata, autoload=True)
+	__table__ = Table('CtlrConnector', metadata, autoload=True)
 	controller = relationship("Controller", backref="connectors")
 	connection = relationship("Connection",
 							 backref=backref("connector", uselist=False))
 
 class Display(Base):
-	__table__ = Table('Display', Lights.metadata, autoload=True)
+	__table__ = Table('Display', metadata, autoload=True)
 
 class Connection(Base):
-	__table__ = Table('Connection', Lights.metadata, autoload=True)
+	__table__ = Table('Connection', metadata, autoload=True)
 	display = relationship("Display", backref="connection")
 	# propIn = relationship("Prop",
 	# 					  foreign_keys="Connection.Input_PropID",
@@ -71,7 +45,7 @@ class Connection(Base):
 
 
 class Prop(Base):
-	__table__ = Table('Prop', Lights.metadata, autoload=True)
+	__table__ = Table('Prop', metadata, autoload=True)
 	item = relationship("CatalogItem", backref="prop")
 	propIn = relationship("Connection",
 						  foreign_keys="Connection.Input_PropID",
@@ -84,11 +58,41 @@ class Prop(Base):
 
 
 class CatalogItem(Base):
-	__table__ = Table('CatalogItem', Lights.metadata, autoload=True)
+	__table__ = Table('CatalogItem', metadata, autoload=True)
+
 
 if __name__ == '__main__':
 
-	lights = Lights()
-	sys.exit()
+	msg = "Prop: {}-{}, Controller: {} {} - {}/{}"
 
-	pass
+	#Create a session to use the tables
+	session = create_session(bind=engine)
+
+	controllers = session.query(Controller).filter(Connection.DisplayID == 1).all()
+	#props = session.query(Prop).filter(Connection.DisplayID == 1).all()
+	#q = session.query(Prop).all()
+
+	for item in q:
+		if item.PixelsAllocated:
+			allocated = item.Strings * item.PixelsAllocated
+		else:
+			allocated = item.Strings * item.Pixels
+		'''
+		if item.controllers:
+			for controller in item.controllers:
+				print msg.format(item.Name,
+								 item.Version,
+								 controller.controller.Name,
+								 controller.controller.model.Model,
+								 item.Strings,
+								 allocated
+								 )
+		else:
+		'''
+		print msg.format(item.Name,
+							 item.Version,
+							 "UNASSIGNED",
+							 "",
+							 item.Strings,
+							 allocated
+							 )

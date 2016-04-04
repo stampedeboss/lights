@@ -20,7 +20,7 @@ _mem_handler = None
 _logging_started = False
 
 
-class JETMSSLogger(logging.Logger):
+class MyLogger(logging.Logger):
     """ """
     local = threading.local()
 
@@ -132,7 +132,7 @@ def initialize(unit_test=False, level=TRACE, console=True):
         log.setLevel(logging.INFO)
 
 
-def start(filename='jetmss.log', level=logging.INFO, timed=False, errorlog=False):
+def start(filename='default.log', level=logging.INFO, timed=False, errorlog=False):
     """After initialization, start file logging.
     """
     global _logging_started
@@ -186,4 +186,4 @@ def flush_logging_to_console():
     _mem_handler.flush()
 
 # Set our custom logger class as default
-logging.setLoggerClass(JETMSSLogger)
+logging.setLoggerClass(MyLogger)

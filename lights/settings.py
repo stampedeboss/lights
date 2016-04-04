@@ -18,9 +18,9 @@ from configobj import ConfigObj
 
 __pgmname__ = "settings"
 
-ConfigDir = os.path.join("~", ".config", "lights")
+ConfigDir = os.path.join("~", ".config", "Lights")
 ConfigDir = os.path.join("~")
-ConfigFile = os.path.join(ConfigDir, "{}.cfg".format("lights"))
+ConfigFile = os.path.join(ConfigDir, "{}.cfg".format("Lights"))
 ConfigFile = os.path.expanduser(ConfigFile)
 
 if not os.path.exists(ConfigDir):
@@ -45,10 +45,8 @@ class Settings(object):
 
 		self.config = ConfigObj(ConfigFile, unrepr=True, interpolation=False)
 		try:
-			Lights = self.config["Lights"]
-
-			Log_Message = self.config["Log_Message"]
-			self.Queue_Depth            = Log_Message["Queue_Depth"]
+			DB = self.config["DB"]
+			self.DSN = os.path.expanduser(DB["DSN"])
 		except Exception, e:
 			log.warn("Configuration Setting Not Found, Rebuilding: {}".format(e))
 			self.build_config()
@@ -62,10 +60,8 @@ class Settings(object):
 
 		config = ConfigObj(ConfigFile, unrepr=True, interpolation=False)
 
-		config["Lights"] = {}
-
-		config["Log_Message"] = {}
-		config["Log_Message"]["Queue_Depth"]          = "Current Queue Depth: {}"
+		config["DB"] = {}
+		config["DB"]["DSN"] = '~/PycharmProjects/Lights/Lights/Lights.sqlite'
 
 		config.write()
 

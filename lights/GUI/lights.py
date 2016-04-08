@@ -57,13 +57,66 @@ class propFrame ( wx.Frame ):
 		
 		prop_bSizer.Add( self.prop_dataViewCtrl, 0, wx.ALL, 5 )
 		
+		self.prop_infoCtrl = wx.InfoBar( self )
+		self.prop_infoCtrl.SetShowHideEffects( wx.SHOW_EFFECT_NONE, wx.SHOW_EFFECT_NONE )
+		self.prop_infoCtrl.SetEffectDuration( 500 )
+		prop_bSizer.Add( self.prop_infoCtrl, 0, wx.ALL, 5 )
+		
 		
 		self.SetSizer( prop_bSizer )
 		self.Layout()
+		self.prop_menubar = wx.MenuBar( 0 )
+		self.file_wxMenu = wx.Menu()
+		self.prop_exit_menuitem = wx.MenuItem( self.file_wxMenu, wx.ID_ANY, u"Exit", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file_wxMenu.AppendItem( self.prop_exit_menuitem )
+		
+		self.prop_menubar.Append( self.file_wxMenu, u"File" ) 
+		
+		self.db_wxMenu = wx.Menu()
+		self.prop_add_menuitem = wx.MenuItem( self.db_wxMenu, wx.ID_ANY, u"Add", wx.EmptyString, wx.ITEM_NORMAL )
+		self.db_wxMenu.AppendItem( self.prop_add_menuitem )
+		
+		self.prop_del_menuitem = wx.MenuItem( self.db_wxMenu, wx.ID_ANY, u"Delete", wx.EmptyString, wx.ITEM_NORMAL )
+		self.db_wxMenu.AppendItem( self.prop_del_menuitem )
+		
+		self.prop_save_menuitem = wx.MenuItem( self.db_wxMenu, wx.ID_ANY, u"Save", wx.EmptyString, wx.ITEM_NORMAL )
+		self.db_wxMenu.AppendItem( self.prop_save_menuitem )
+		
+		self.prop_refresh_menuitem = wx.MenuItem( self.db_wxMenu, wx.ID_ANY, u"Refresh", wx.EmptyString, wx.ITEM_NORMAL )
+		self.db_wxMenu.AppendItem( self.prop_refresh_menuitem )
+		
+		self.prop_menubar.Append( self.db_wxMenu, u"DB" ) 
+		
+		self.SetMenuBar( self.prop_menubar )
+		
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.Bind( wx.EVT_MENU, self.propExit, id = self.prop_exit_menuitem.GetId() )
+		self.Bind( wx.EVT_MENU, self.addProp, id = self.prop_add_menuitem.GetId() )
+		self.Bind( wx.EVT_MENU, self.delProp, id = self.prop_del_menuitem.GetId() )
+		self.Bind( wx.EVT_MENU, self.saveProp, id = self.prop_save_menuitem.GetId() )
+		self.Bind( wx.EVT_MENU, self.refreshProp, id = self.prop_refresh_menuitem.GetId() )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def propExit( self, event ):
+		event.Skip()
+	
+	def addProp( self, event ):
+		event.Skip()
+	
+	def delProp( self, event ):
+		event.Skip()
+	
+	def saveProp( self, event ):
+		event.Skip()
+	
+	def refreshProp( self, event ):
+		event.Skip()
 	
 

@@ -20,8 +20,7 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Prop
-
+from lights.prop import Prop
 
 __pgmname__ = 'propmodel'
 
@@ -38,9 +37,10 @@ log = logging.getLogger(__pgmname__)
 
 class propModel(dv.PyDataViewModel):
 
-	def __init__(self, data):
+	def __init__(self, data, session):
 		super(propModel, self).__init__()
 		self.data = data
+		self.session = session
 		self.objmapper.UseWeakRefs(True)
 
 	def GetColumnCount(self):
@@ -113,6 +113,7 @@ class propModel(dv.PyDataViewModel):
 
 		node = self.ItemToObject(item)
 		if isinstance(node, Prop):
+			self.session.begin(subtransactions=True)
 			if col == 1:
 				node.Name = value
 			elif col == 2:
@@ -125,9 +126,14 @@ class propModel(dv.PyDataViewModel):
 				node.PixelsAllocated = value
 			elif col == 6:
 				node.CatalogItemID = value
+			self.session.commit()
 
 	def AddProp(self):
 		prop = Prop()
+		self.session.begin()
+		self.session.add(Prop)
+		self.session.commit()
+
 
 if __name__ == '__main__':
 	from lights import Session
@@ -137,7 +143,7 @@ if __name__ == '__main__':
 	session = Session()
 	props = session.query(Prop).all()
 
-	mdl = propModel(props)
+	mdl = propModel(props, session)
 	print mdl
 
 # main = MyFrame4(None)

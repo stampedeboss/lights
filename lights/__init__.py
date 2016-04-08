@@ -2,14 +2,11 @@ import logging
 import sys
 
 from sqlalchemy import create_engine, MetaData, Table
-from sqlalchemy.orm import create_session
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import contains_eager, joinedload
 
 from sqlite3 import dbapi2 as sqlite
-from datetime import datetime
 
 from lights import logger
 from cmdoptions import CmdOptions
@@ -19,6 +16,7 @@ __pgmname__ = 'lights'
 
 log = logging.getLogger(__pgmname__)
 Base = declarative_base()
+Session = sessionmaker(autocommit=True, expire_on_commit=False )
 
 
 class Lights(object):
@@ -32,9 +30,10 @@ class Lights(object):
 
 	log.debug("DB Engine Initialized")
 	# Create and engine and get the metadata
-	engine = create_engine('sqlite:////{}'.format(settings.DSN),
+	engine = create_engine('sqlite:///{}'.format(settings.DSN),
 	                       module=sqlite)
 	metadata = MetaData(bind=engine)
+	Session.configure(bind=engine)
 
 	def __init__(self, **kwargs):
 
@@ -81,6 +80,12 @@ class Prop(Base):
 						   backref=backref("output",uselist=False))
 
 	#keywords = association_proxy('kw', 'keyword')
+
+	def __init__(self):
+		log.debug('prop.__init__')
+		super(Prop, self).__init__()
+
+		self.columns = Prop.__table__.columns.keys()
 
 
 class CatalogItem(Base):

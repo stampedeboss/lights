@@ -46,7 +46,10 @@ class Settings(object):
 		self.config = ConfigObj(ConfigFile, unrepr=True, interpolation=False)
 		try:
 			DB = self.config["DB"]
-			self.DSN = os.path.expanduser(DB["DSN"])
+			self.Location = DB["Location"]
+			self.FileName = DB["FileName"]
+			self.DSN = os.path.join(self.Location, self.FileName)
+
 		except Exception, e:
 			log.warn("Configuration Setting Not Found, Rebuilding: {}".format(e))
 			self.build_config()
@@ -61,8 +64,8 @@ class Settings(object):
 		config = ConfigObj(ConfigFile, unrepr=True, interpolation=False)
 
 		config["DB"] = {}
-		config["DB"]["DSN"] = '~/PycharmProjects/Lights/Lights/Lights.sqlite'
-
+		config["DB"]["Location"] = os.path.dirname(os.path.abspath(__file__))
+		config["DB"]["FileName"] = "lights.sqlite"
 		config.write()
 
 

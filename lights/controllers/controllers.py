@@ -7,7 +7,11 @@ Purpose:
 
 import logging
 
-__pgmname__ = '__init__.py'
+from sqlalchemy.orm import create_session
+
+from lights import Lights, Controller
+
+__pgmname__ = 'controllers'
 
 __author__ = "AJ Reynolds"
 __email__ = "stampedeboss@gmail.com"
@@ -20,11 +24,11 @@ __license__ = "CC0"
 log = logging.getLogger(__pgmname__)
 
 
-class __init__(object):
+class Controllers(object):
 
 	def __init__(self, id=None, **kwargs):
-		log.trace('__init__.py.__init__')
-		super(__init__.py, self).__init__()
+		log.trace('controllers.__init__')
+		super(Controllers, self).__init__()
 
 
 if __name__ == '__main__':
@@ -33,22 +37,18 @@ if __name__ == '__main__':
 	from lights import Lights
 	from logging import DEBUG;
 
-	TRACE = 5;
-	VERBOSE = 15
 	Lights.logger.initialize(level=DEBUG)
 
 	Lights.args = Lights.cmdoptions.ParseArgs(argv[1:])
 	Lights.logger.start(Lights.args.logfile, DEBUG, timed=Lights.args.timed)
 
 
-	msg = "Prop: {}-{}, Controller: {} {} - {}/{}"
+	msg = "Controller: {} {} - {}/{}"
 
 	# Create a session to use the tables
-	session = create_session(bind=engine)
+	session = create_session(bind=Lights.engine)
 
 	controllers = session.query(Controller).filter(Connection.DisplayID == 1).all()
-	# props = session.query(Prop).filter(Connection.DisplayID == 1).all()
-	# q = session.query(Prop).all()
 
 	for item in q:
 		if item.PixelsAllocated:

@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="834590357">
-    <data-source source="LOCAL" name="Sqlite (Xerial) - lights.sqlite" uuid="1db2e2e0-167d-4e0f-ac2e-55f63b56b609">
+  <component name="DataSourceManagerImpl" format="xml" hash="1399504906">
+    <data-source source="LOCAL" name="Sqlite (Xerial) - lights.sqlite" uuid="1b2c11c0-52bc-4696-b54b-d58f315ac214">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/lights/lights.sqlite</jdbc-url>
-      <driver-properties>
-        <property name="foreign_keys" value="false" />
-      </driver-properties>
     </data-source>
   </component>
 </project>

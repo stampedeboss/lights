@@ -10,6 +10,7 @@ import re
 import sys
 import threading
 
+from logging import INFO, DEBUG, ERROR, WARN
 # A level more detailed than DEBUG
 TRACE = 5
 # A level more detailed than INFO

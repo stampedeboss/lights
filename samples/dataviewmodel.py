@@ -1,21 +1,10 @@
 
 import wx
 import wx.dataview as dv
-import images
 
 import random
 
 #----------------------------------------------------------------------
-
-def makeBlank(self):
-    # Just a little helper function to make an empty image for our
-    # model to use.
-    empty = wx.EmptyBitmap(16,16,32)
-    dc = wx.MemoryDC(empty)
-    dc.SetBackground(wx.Brush((0,0,0,0)))
-    dc.Clear()
-    del dc
-    return empty
 
 #----------------------------------------------------------------------
 # We'll use instaces of these classes to hold our music data. Items in the

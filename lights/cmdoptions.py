@@ -14,7 +14,6 @@ from os.path import dirname, expanduser, join, split, splitext, isabs
 from subprocess import Popen, PIPE
 from sys import argv, exit
 
-import logger
 
 __pgmname__ = os.path.splitext(os.path.basename(argv[0]))[0]
 
@@ -60,6 +59,10 @@ class CmdOptions(ArgumentParser):
 
 		super(CmdOptions, self).__init__(self, **kwargs)
 
+		log_file = os.path.splitext(os.path.basename(argv[0]))[0] + '.log'
+		if log_file[:2] == '__':
+			log_file = os.path.basename(os.path.dirname(argv[0])) + '.log'
+
 		self.parser = ArgumentParser(description=program_license,
 									 formatter_class=RawDescriptionHelpFormatter,
 									 conflict_handler='resolve')
@@ -71,7 +74,7 @@ class CmdOptions(ArgumentParser):
 								 help='Specify a log directory [default: %(default)s]')
 		self.parser.add_argument('--logfile', action='store',
 								 dest='logfile',
-                                 default=os.path.splitext(os.path.basename(argv[0]))[0] + '.log',
+                                 default=log_file,
 								 help='Specify a custom logfile filename [default: %(default)s]')
 		self.parser.add_argument("--Error-Log", dest="errorlog", action="store_true", default=False,
 								 help="Create Seperate Log for Errors")
@@ -99,26 +102,8 @@ class CmdOptions(ArgumentParser):
 						action="store_const", const="ERROR",
 						help="Limit logging to only include Errors and Critical information")
 
-	def ParseArgs(self, arg):
-
-		args = self.parser.parse_args(arg)
-		log.debug("Parsed command line: {!s}".format(args))
-
-		log_level = logger.logging.getLevelName(args.loglevel.upper())
-		log_file = os.path.expanduser(args.logfile)
-
-		# If an absolute path is not specified, use the default directory.
-		if not os.path.isabs(log_file):
-			log_file = os.path.join(os.path.expanduser("~/"), log_file)
-
-		logger.start(log_file, log_level, timed=args.session_log)
-
-		return args
-
 
 if __name__ == "__main__":
-
-	logger.initialize()
 
 	opt = CmdOptions()
 	args = opt.parser.parse_args(argv[1:])

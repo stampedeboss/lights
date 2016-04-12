@@ -6,7 +6,7 @@ import wx.dataview as dv
 from sqlalchemy.orm import create_session
 
 from lights import Lights, Prop
-from lights.prop.propmodel import propModel
+from lights.prop.datamodel import dataModel
 
 
 class MyFrame(wx.Frame):
@@ -41,7 +41,7 @@ class MyFrame(wx.Frame):
 		session = create_session(bind=Lights.engine)
 		props = session.query(Prop).all()
 
-		self.mdl = propModel(props)
+		self.mdl = dataModel(props)
 
 		data1.AssociateModel(self.mdl)
 		# Define the columns that we want in the view.  Notice the

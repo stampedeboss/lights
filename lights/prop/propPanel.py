@@ -33,7 +33,6 @@ class propFrame(PF):
 
 		self.mdl = None
 		self.session = None
-
 		self.loadModel()
 
 	def loadModel(self):
@@ -44,15 +43,12 @@ class propFrame(PF):
 		self.mdl = propModel(data, self.session)
 		self.prop_dataViewCtrl.AssociateModel(self.mdl)
 
-		# Define the columns that we want in the view.  Notice the
-		# parameter which tells the view which col in the data model to pull
-		# values from for each view column.
 		if 0:
 			self.tr = tr = dv.DataViewTextRenderer()
 			c0 = dv.DataViewColumn("ID",  # title
 			                       tr,  # renderer
 			                       0,  # data model column
-			                       width=80)
+			                       width=75)
 			self.prop_dataViewCtrl.AppendColumn(c0)
 		else:
 			self.prop_dataViewCtrl.AppendTextColumn("Name", 1, width=150)
@@ -100,7 +96,7 @@ class propFrame(PF):
 
 	def refreshProp(self, event):
 		self.mdl.Cleared()
-		self.Show()
+		self.Refresh()
 		print
 
 

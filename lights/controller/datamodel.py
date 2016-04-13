@@ -4,7 +4,7 @@
 '''
 	----------------------------------------------------------------------
 	This model acts as a bridge between the DataViewCtrl and the Controller data, and
-	organizes it hierarchically as a collection of Props.
+	organizes it hierarchically as a collection of Prop.
 
 	This model provides these data columns:
 

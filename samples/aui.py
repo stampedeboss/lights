@@ -22,7 +22,7 @@ class MyFrame(wx.Frame):
 		self._mgr.SetManagedWindow(self)
 
 		# create several text controls
-		text1 = wx.TextCtrl(self, -1, "Props",
+		text1 = wx.TextCtrl(self, -1, "Prop",
 							wx.DefaultPosition, wx.Size(200,150),
 							wx.NO_BORDER | wx.TE_MULTILINE)
 

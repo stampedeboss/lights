@@ -8,7 +8,8 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights.GUI.lights import subFrame as SF
+from lights import Session, Display
+from lights.GUI.lights import subPanel as SP
 from lights.display.datamodel import dataModel
 
 __pgmname__ = 'subframe'
@@ -24,15 +25,16 @@ __license__ = "CC0"
 log = logging.getLogger(__pgmname__)
 
 
-class subFrame(SF):
+class subPanel(SP):
 
-	def __init__(self, parent, data, session):
-		super(subFrame, self).__init__(parent)
+	def __init__(self, parent):
+		super(subPanel, self).__init__(parent)
 
-		self.Title = u'Lights: Displays'
-		self.mdl = None
-		self.session = session
-		self.mdl = dataModel(data, self.session)
+		self.Title = u'Lights: Display'
+		self.parent = parent
+		self.session = None
+		self.data = None
+		self.mdl = dataModel(self.data, self.session)
 		self.dataViewCtrl.AssociateModel(self.mdl)
 
 		# Define the columns that we want in the view.  Notice the
@@ -53,33 +55,42 @@ class subFrame(SF):
 			c.Sortable = True
 			c.Reorderable = True
 
+		self.getData()
 		return
 
+	def getData(self):
+		self.session = Session()
+		self.data = self.session.query(Display).all()
+		self.mdl.session = self.session
+		self.mdl.data = self.data
+		self.mdl.Cleared()
+		return
 
-	# Handlers for subFrame events.
-	def fileExit( self, event ):
+	# Handlers for subPanel events.
+	def Exit( self, event ):
 		self.Close()
 
+	def addItem(self, event):
+		dlg = wx.TextEntryDialog(
+			self, 'What is name of the Display?',
+			'Lights: Add Display', '')
 
-	def addItem( self, event ):
-		# TODO: Implement addProp
-		pass
+		if dlg.ShowModal() == wx.ID_OK:
+			log.debug('Add new Display: %s\n' % dlg.GetValue())
+			self.mdl.addItem({"DisplayName": dlg.GetValue()})
 
+		dlg.Destroy()
+		self.getData()
+		self.Refresh()
 
 	def delItem( self, event ):
-		# TODO: Implement delProp
-		pass
-
-
-	def saveRecs( self, event ):
-		# TODO: Implement saveProp
-		pass
-
-
-	def refreshDB( self, event ):
-		#self.mdl.Cleared()
-		self.Show()
-		print
+		if not self.dataViewCtrl.HasSelection():
+			wx.MessageBox("Nothing selected, unable to delete", "Lights: Display")
+			return
+		current = self.dataViewCtrl.GetSelection()
+		self.mdl.delItem(current)
+		self.getData()
+		self.Refresh()
 
 
 if __name__ == '__main__':
@@ -88,11 +99,11 @@ if __name__ == '__main__':
 	lights = Lights()
 	lights.ParseArgs(argv[1:], test=True)
 
-	from lights import Session, Displays
+	from lights.GUI.lights import mainFrame
 
 	app = wx.App(False)
-	session = Session()
-	data = session.query(Displays).all()
-	sf = subFrame(None, data, session)
-	sf.Show()
+	mf = mainFrame(None)
+	sp = subPanel(mf.main_notebook)
+	mf.main_notebook.AddPage(sp, "Displays")
+	mf.Show()
 	app.MainLoop()

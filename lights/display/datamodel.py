@@ -15,7 +15,7 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Displays
+from lights import Display
 
 __pgmname__ = 'datamodel'
 
@@ -71,7 +71,7 @@ class dataModel(dv.PyDataViewModel):
 		# item, so we'll use the genre objects as its children and they will
 		# end up being the collection of visible roots in our tree.
 		log.trace("GetChildren")
-		if not parent:
+		if self.data and not parent:
 			for item in self.data:
 				children.append(self.ObjectToItem(item))
 			return len(self.data)
@@ -82,7 +82,7 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("GetValue")
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Displays):
+		if isinstance(node, Display):
 			mapper = {0: str(node.ID),
 					  1: node.DisplayName
 					  }
@@ -95,7 +95,7 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("SetValue: %s" % value)
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Displays):
+		if isinstance(node, Display):
 			self.session.begin(subtransactions=True)
 			if col == 1:
 				node.Name = value
@@ -103,21 +103,16 @@ class dataModel(dv.PyDataViewModel):
 
 	def addItem(self, item):
 		self.session.begin(subtransactions=True)
-		self.session.add(item)
+		new_display = Display(**item)
+		self.session.add(new_display)
+		self.session.flush()
 		self.session.commit()
 
-	def delItem(self):
-		# TODO: Implement delItem Prop
-		pass
-
-	def saveRecs(self):
-		# TODO: Implement saveRecs Prop
-		pass
-
-	def refreshDB(self):
-		# self.mdl.Cleared()
-		self.Show()
-		print
+	def delItem(self, item):
+		node = self.ItemToObject(item)
+		self.session.begin(subtransactions=True)
+		self.session.delete(node)
+		self.session.commit()
 
 
 if __name__ == '__main__':
@@ -131,7 +126,7 @@ if __name__ == '__main__':
 	app = wx.App(False)
 	# Create a session to use the tables
 	session = Session()
-	q = session.query(Displays).all()
+	q = session.query(Display).all()
 
 	mdl = dataModel(q, session)
 	print mdl

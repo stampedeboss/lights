@@ -8,10 +8,13 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights.GUI.lights import subFrame as SF
-from lights.prop.datamodel import dataModel
+from lights import Session, Prop
 
-__pgmname__ = 'subframe'
+from lights.GUI.lights import subPanel as SP, addProp
+from lights.prop.datamodel import dataModel
+from lights.prop.addProp import addProp
+
+__pgmname__ = 'subpanel'
 
 __author__ = "AJ Reynolds"
 __email__ = "stampedeboss@gmail.com"
@@ -24,16 +27,16 @@ __license__ = "CC0"
 log = logging.getLogger(__pgmname__)
 
 
-class subFrame(SF):
+class subPanel(SP):
 
-	def __init__(self, parent, data, session):
-		super(subFrame, self).__init__(parent)
+	def __init__(self, parent):
+		super(subPanel, self).__init__(parent)
 		log.trace("__init__")
 
-		self.Title = u'Lights: Props'
-		self.mdl = None
-		self.session = session
-		self.mdl = dataModel(data, self.session)
+		self.Title = u'Lights: Prop'
+		self.session = None
+		self.data = None
+		self.mdl = dataModel(self.data, self.session)
 		self.dataViewCtrl.AssociateModel(self.mdl)
 
 		# Define the columns that we want in the view.  Notice the
@@ -51,7 +54,7 @@ class subFrame(SF):
 		c3 = self.dataViewCtrl.AppendTextColumn("Strings", 3, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
 		c4 = self.dataViewCtrl.AppendTextColumn('Pixels', 4, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
 		c5 = self.dataViewCtrl.AppendTextColumn('Allocated', 5, width=60, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c6 = self.dataViewCtrl.AppendTextColumn('Product', 6, width=75, mode=dv.DATAVIEW_CELL_ACTIVATABLE)
+		c6 = self.dataViewCtrl.AppendTextColumn('Product', 6, width=185, mode=dv.DATAVIEW_CELL_ACTIVATABLE)
 
 		c1.Alignment = wx.ALIGN_LEFT
 		c2.Alignment = wx.ALIGN_RIGHT
@@ -65,43 +68,50 @@ class subFrame(SF):
 			c.Sortable = True
 			c.Reorderable = True
 
+		self.getData()
 		return
 
+	def getData(self):
+		self.session = Session()
+		self.data = self.session.query(Prop).all()
+		self.mdl.session = self.session
+		self.mdl.data = self.data
+		self.mdl.Cleared()
+		return
 
-	# Handlers for subFrame events.
-	def fileExit( self, event ):
-		log.trace("fileExit")
+	# Handlers for subPanel events.
+	def Exit( self, event ):
+		log.trace("Exit")
 		self.Close()
 
 	def addItem( self, event ):
-		# TODO: Implement addProp
-		pass
+		dlg = addProp(self)
+		dlg.ShowModal()
+		dlg.Destroy()
+		self.getData()
+		self.Refresh()
 
 	def delItem( self, event ):
-		# TODO: Implement delProp
-		pass
-
-	def saveRecs( self, event ):
-		# TODO: Implement saveProp
-		pass
-
-	def refreshDB( self, event ):
-		#self.mdl.Cleared()
-		self.Show()
-		print
+		if not self.dataViewCtrl.HasSelection():
+			wx.MessageBox("Nothing selected, unable to delete", "Lights: Prop")
+			return
+		current = self.dataViewCtrl.GetSelection()
+		self.mdl.delItem(current)
+		self.getData()
+		self.Refresh()
 
 
 if __name__ == '__main__':
 	from lights import Lights
 	from sys import argv
 	lights = Lights()
-	lights.ParseArgs(argv[1:], trace=True)
+	lights.ParseArgs(argv[1:], test=True)
 
-	from lights import Session, Props
+	from lights.GUI.lights import mainFrame
 
 	app = wx.App(False)
-	session = Session()
-	q = session.query(Props).all()
-	sf = subFrame(None, q, session)
-	sf.Show()
+	mf = mainFrame(None)
+	sp = subPanel(mf.main_notebook)
+	mf.main_notebook.AddPage(sp, "Props")
+	mf.Show()
 	app.MainLoop()

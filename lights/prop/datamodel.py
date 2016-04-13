@@ -4,7 +4,7 @@
 '''
 	----------------------------------------------------------------------
 	This model acts as a bridge between the DataViewCtrl and the Prop data, and
-	organizes it hierarchically as a collection of Props.
+	organizes it hierarchically as a collection of Prop.
 
 	This model provides these data columns:
 
@@ -21,7 +21,7 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Props
+from lights import Prop
 
 __pgmname__ = 'datamodel'
 
@@ -77,7 +77,7 @@ class dataModel(dv.PyDataViewModel):
 		# item, so we'll use the genre objects as its children and they will
 		# end up being the collection of visible roots in our tree.
 		log.trace("GetChildren")
-		if not parent:
+		if self.data and not parent:
 			for item in self.data:
 				children.append(self.ObjectToItem(item))
 			return len(self.data)
@@ -88,7 +88,7 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("GetValue")
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Props):
+		if isinstance(node, Prop):
 			if node.PixelsAllocated:
 				allocated = str(node.PixelsAllocated)
 			else:
@@ -112,7 +112,7 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("SetValue: %s" % value)
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Props):
+		if isinstance(node, Prop):
 			self.session.begin(subtransactions=True)
 			if col == 1:
 				node.Name = value
@@ -120,29 +120,32 @@ class dataModel(dv.PyDataViewModel):
 				node.Unit = value
 			elif col == 3:
 				node.Strings = value
+				if node.Strings * node.Pixels == value:
+					node.PixelsAllocated = None
 			elif col == 4:
 				node.Pixels = value
+				if node.Strings * node.Pixels == value:
+					node.PixelsAllocated = None
 			elif col == 5:
+				value = int(value)
+				if value == 0 or node.Strings * node.Pixels == value:
+					value = None
 				node.PixelsAllocated = value
 			self.session.commit()
 
-	def addItem(self, item):
+	def addItem(self, items):
 		self.session.begin(subtransactions=True)
-		self.session.add(item)
+		for item in items:
+			new_prop = Prop(**item)
+			self.session.add(new_prop)
+			self.session.flush()
 		self.session.commit()
 
-	def delItem(self):
-		# TODO: Implement delItem Prop
-		pass
-
-	def saveRecs(self):
-		# TODO: Implement saveRecs Prop
-		pass
-
-	def refreshDB(self):
-		# self.mdl.Cleared()
-		self.Show()
-		print
+	def delItem(self, item):
+		node = self.ItemToObject(item)
+		self.session.begin(subtransactions=True)
+		self.session.delete(node)
+		self.session.commit()
 
 
 if __name__ == '__main__':
@@ -156,7 +159,7 @@ if __name__ == '__main__':
 	app = wx.App(False)
 	# Create a session to use the tables
 	session = Session()
-	q = session.query(Props).all()
+	q = session.query(Prop).all()
 
 	mdl = dataModel(q, session)
 	print mdl

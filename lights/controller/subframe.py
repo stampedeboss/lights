@@ -70,7 +70,7 @@ class subFrame(SF):
 
 		return
 
-	# Handlers for subFrame events.
+	# Handlers for subPanel events.
 	def fileExit( self, event ):
 		self.Close()
 

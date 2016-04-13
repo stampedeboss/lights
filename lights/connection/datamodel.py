@@ -23,7 +23,7 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Session, Displays, Connections, Props, Controllers, Connectors
+from lights import Session, Display, Connections, Prop, Controllers, Connectors
 
 __pgmname__ = 'datamodel'
 
@@ -72,7 +72,7 @@ class dataModel(dv.PyDataViewModel):
 			return True
 		# and in this model the genre objects are containers
 		# node = self.ItemToObject(item)
-		# if isinstance(node, Displays):
+		# if isinstance(node, Display):
 		# 	return True
 		# but everything else are not
 		return False
@@ -84,7 +84,7 @@ class dataModel(dv.PyDataViewModel):
 		return dv.NullDataViewItem
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Displays):
+		if isinstance(node, Display):
 			return dv.NullDataViewItem
 		# elif isinstance(node, Controllers):
 		# 	for connector in node.connectors:
@@ -112,7 +112,7 @@ class dataModel(dv.PyDataViewModel):
 		# Otherwise we'll fetch the python object associated with the parent
 		# item and make DV items for each of it's child objects.
 		# node = self.ItemToObject(parent)
-		# if isinstance(node, Displays):
+		# if isinstance(node, Display):
 		# 	for item in self.data:
 		# 		if item.connector and item.connector.controller:
 		# 			children.append(self.ObjectToItem(item.connector.controller))
@@ -134,7 +134,7 @@ class dataModel(dv.PyDataViewModel):
 			mapper[i] = None
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Displays):
+		if isinstance(node, Display):
 			mapper[0] = node.DisplayName
 			return mapper[col]
 		elif isinstance(node, Controllers):

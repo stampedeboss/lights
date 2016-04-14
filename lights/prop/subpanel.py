@@ -29,11 +29,13 @@ log = logging.getLogger(__pgmname__)
 
 class subPanel(SP):
 
-	def __init__(self, parent):
+	def __init__(self, parent, frame):
 		super(subPanel, self).__init__(parent)
 		log.trace("__init__")
 
 		self.Title = u'Lights: Prop'
+		self.parent = parent
+		self.frame = frame
 		self.session = None
 		self.data = None
 		self.mdl = dataModel(self.data, self.session)
@@ -82,7 +84,7 @@ class subPanel(SP):
 	# Handlers for subPanel events.
 	def Exit( self, event ):
 		log.trace("Exit")
-		self.Close()
+		self.frame.Close()
 
 	def addItem( self, event ):
 		dlg = addProp(self)
@@ -111,7 +113,7 @@ if __name__ == '__main__':
 
 	app = wx.App(False)
 	mf = mainFrame(None)
-	sp = subPanel(mf.main_notebook)
+	sp = subPanel(mf.main_notebook, mf)
 	mf.main_notebook.AddPage(sp, "Props")
 	mf.Show()
 	app.MainLoop()

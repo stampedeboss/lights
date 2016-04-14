@@ -7,7 +7,7 @@
 import wx
 import logging
 
-from lights import Session, Products, Prop
+from lights import Session, Product, Prop
 from lights.GUI.lights import addProp as AP
 
 __pgmname__ = 'addProp'
@@ -31,7 +31,7 @@ class addProp(AP):
 		self.prodList = {}
 
 		session = Session()
-		prod = session.query(Products).all()
+		prod = session.query(Product).all()
 		for item in prod:
 			entry = "{} {} {}".format(item.Style,
 									 item.Protocol,

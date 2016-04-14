@@ -59,23 +59,20 @@ class Lights(object):
 		log.debug("Parsed command line: {!s}".format(Lights.args))
 
 
-class Products(Base):
+class Product(Base):
 	__table__ = Table('Product', metadata, autoload=True)
 
 	def __init__(self, **kwargs):
 		log.debug('CatlogItems.__init__')
-		super(Products, self).__init__(**kwargs)
+		super(Product, self).__init__(**kwargs)
 
-		self.columns = Products.columns.keys()
 
-class CtlrModels(Base):
-	__table__ = Table('CtlrModel', metadata, autoload=True)
+class Model(Base):
+	__table__ = Table('Model', metadata, autoload=True)
 
 	def __init__(self, **kwargs):
-		log.debug('CtlrModels.__init__')
-		super(CtlrModels, self).__init__(**kwargs)
-
-		self.columns = CtlrModels.__table__.columns.keys()
+		log.debug('CtlrModel.__init__')
+		super(Model, self).__init__(**kwargs)
 
 
 class Display(Base):
@@ -85,58 +82,58 @@ class Display(Base):
 		log.debug('Display.__init__')
 		super(Display, self).__init__(**kwargs)
 
-		self.columns = Display.__table__.columns.keys()
 
-
-class Controllers(Base):
+class Controller(Base):
 	__table__ = Table('Controller', metadata, autoload=True)
-	model = relationship("CtlrModels", backref=backref("controllers"))
+	model = relationship("Model", backref="controllers")
 
 	def __init__(self, **kwargs):
-		log.debug('Controllers.__init__')
-		super(Controllers, self).__init__(**kwargs)
-
-		self.columns = Controllers.__table__.columns.keys()
+		log.debug('Controller.__init__')
+		super(Controller, self).__init__(**kwargs)
 
 
-class Connectors(Base):
+class DisplayController(Base):
+	__table__ = Table('DisplayController', metadata, autoload=True)
+	display = relationship("Display", backref="controllers")
+	controller = relationship("Controller", backref="displays")
+
+	def __init__(self, **kwargs):
+		log.debug('DisplayController.__init__')
+		super(DisplayController, self).__init__(**kwargs)
+
+
+class Connector(Base):
 	__table__ = Table('Connector', metadata, autoload=True)
-	controller = relationship("Controllers", backref="connectors")
+	controller = relationship("Controller", backref="connectors")
 
 	def __init__(self, **kwargs):
-		log.debug('CtlrConnectors.__init__')
-		super(CtlrConnectors, self).__init__(**kwargs)
-
-		self.columns = CtlrConnectors.__table__.columns.keys()
+		log.debug('Connector.__init__')
+		super(Connector, self).__init__(**kwargs)
 
 
-class Connections(Base):
+class Connection(Base):
 	__table__ = Table('Connection', metadata, autoload=True)
 	display = relationship("Display", backref="connections")
-	connector = relationship("Connectors", backref=backref("connection", uselist=False))
-	propIn = relationship("Prop", foreign_keys="Connections.Input_PropID",
-						  backref=backref("input", uselist=False))
-	propOut = relationship("Prop", foreign_keys="Connections.Output_PropID",
-						   backref=backref("output", uselist=False))
+	connector = relationship("Connector", backref=backref("connections"))
+	propIn = relationship("Prop", foreign_keys="Connection.Input_PropID",
+						  backref=backref("inputs"))
+	propOut = relationship("Prop", foreign_keys="Connection.Output_PropID",
+						   backref=backref("outputs"))
 
 	def __init__(self, **kwargs):
-		log.debug('Connections.__init__')
-		super(Connections, self).__init__(**kwargs)
-
-		self.columns = Connections.__table__.columns.keys()
+		log.debug('Connection.__init__')
+		super(Connection, self).__init__(**kwargs)
 
 
 class Prop(Base):
 	__table__ = Table('Prop', metadata, autoload=True)
-	product = relationship("Products", backref="prop")
+	product = relationship("Product", backref="prop")
 
 	#keywords = association_proxy('kw', 'keyword')
 
 	def __init__(self, **kwargs):
 		log.debug('prop.__init__')
 		super(Prop, self).__init__(**kwargs)
-
-		self.columns = Prop.__table__.columns.keys()
 
 
 if __name__ == '__main__':
@@ -146,12 +143,13 @@ if __name__ == '__main__':
 
 	# Create a session to use the tables
 	session = Session()
-	models = session.query(CtlrModels).all()
-	controllers = session.query(Controllers).all()
-	connectors = session.query(Connectors).all()
-	connections = session.query(Connections).all()
+	models = session.query(Model).all()
+	controllers = session.query(Controller).all()
+	connectors = session.query(Connector).all()
+	connections = session.query(Connection).all()
 	displays = session.query(Display).all()
-	products = session.query(Products).all()
+	dispctlrs = session.query(DisplayController).all()
+	products = session.query(Product).all()
 	props = session.query(Prop).all()
 
 	for item in props:

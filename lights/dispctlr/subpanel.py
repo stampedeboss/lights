@@ -8,9 +8,9 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Session, Display
+from lights import Session, Display, DisplayController, Controller
 from lights.GUI.lights import subPanel as SP
-from lights.display.datamodel import dataModel
+from lights.dispctlr.datamodel import dataModel
 
 __pgmname__ = 'subpanel'
 
@@ -33,35 +33,51 @@ class subPanel(SP):
 		self.Title = u'Lights: Display'
 		self.parent = parent
 		self.frame = frame
-		self.session = None
-		self.data = None
+		self.session = Session()
+		self.data = self.session.query(DisplayController).all()
 		self.mdl = dataModel(self.data, self.session)
 		self.dataViewCtrl.AssociateModel(self.mdl)
 
 		# Define the columns that we want in the view.  Notice the
 		# parameter which tells the view which col in the data model to pull
 		# values from for each view column.
-		self.tr = tr = dv.DataViewTextRenderer()
-		c0 = dv.DataViewColumn("ID",  # title
-		                       tr,  # renderer
-		                       0,  # data model column
-		                       width=80)
-		self.dataViewCtrl.AppendColumn(c0)
+		if 1:
+			self.tr = tr = dv.DataViewTextRenderer()
+			c0 = dv.DataViewColumn("Name",  # title
+			                       tr,  # renderer
+			                       0,  # data model column
+			                       width=150)
+			self.dataViewCtrl.AppendColumn(c0)
+		else:
+			self.dataViewCtrl.AppendTextColumn("Name", 0, width=150)
 
-		c1 = self.dataViewCtrl.AppendTextColumn("Name", 1, width=125, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c1.Alignment = wx.ALIGN_LEFT
+		c1 = self.dataViewCtrl.AppendTextColumn("CtlrID", 2, width=35, mode=dv.DATAVIEW_CELL_INERT)
+		c2 = self.dataViewCtrl.AppendTextColumn("Seq", 3, width=35, mode=dv.DATAVIEW_CELL_EDITABLE)
+		c3 = self.dataViewCtrl.AppendTextColumn("Name", 4, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c4 = self.dataViewCtrl.AppendTextColumn("Mfg", 5, width=75, mode=dv.DATAVIEW_CELL_INERT)
+		c5 = self.dataViewCtrl.AppendTextColumn("Mdl", 6, width=75, mode=dv.DATAVIEW_CELL_INERT)
+		c6 = self.dataViewCtrl.AppendTextColumn("MdlID", 7, width=35, mode=dv.DATAVIEW_CELL_INERT)
+		c7 = self.dataViewCtrl.AppendTextColumn("IP", 8, width=35, mode=dv.DATAVIEW_CELL_INERT)
+		c8 = self.dataViewCtrl.AppendTextColumn("Univ", 9, width=35, mode=dv.DATAVIEW_CELL_INERT)
+		c1.Alignment = wx.ALIGN_RIGHT
+		c2.Alignment = wx.ALIGN_RIGHT
+		c3.Alignment = wx.ALIGN_LEFT
+		c4.Alignment = wx.ALIGN_LEFT
+		c5.Alignment = wx.ALIGN_LEFT
+		c6.Alignment = wx.ALIGN_RIGHT
+		c7.Alignment = wx.ALIGN_RIGHT
+		c8.Alignment = wx.ALIGN_RIGHT
 
 		# Set some additional attributes for all the columns
 		for c in self.dataViewCtrl.Columns:
 			c.Sortable = True
 			c.Reorderable = True
 
-		self.getData()
 		return
 
 	def getData(self):
 		self.session = Session()
-		self.data = self.session.query(Display).all()
+		self.data = self.session.query(DisplayController).all()
 		self.mdl.session = self.session
 		self.mdl.data = self.data
 		self.mdl.Cleared()
@@ -105,6 +121,6 @@ if __name__ == '__main__':
 	app = wx.App(False)
 	mf = mainFrame(None)
 	sp = subPanel(mf.main_notebook, mf)
-	mf.main_notebook.AddPage(sp, "Displays")
+	mf.main_notebook.AddPage(sp, "Display-Controllers")
 	mf.Show()
 	app.MainLoop()

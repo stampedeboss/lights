@@ -8,10 +8,12 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights.GUI.lights import subFrame as SF
+from lights import Session, Controller
+from lights.GUI.lights import subPanel as SP
 from lights.controller.datamodel import dataModel
+from lights.controller.addcontroller import addController
 
-__pgmname__ = 'subframe'
+__pgmname__ = 'subpanel'
 
 __author__ = "AJ Reynolds"
 __email__ = "stampedeboss@gmail.com"
@@ -24,15 +26,18 @@ __license__ = "CC0"
 log = logging.getLogger(__pgmname__)
 
 
-class subFrame(SF):
+class subPanel(SP):
 
-	def __init__(self, parent, data, session):
-		super(subFrame, self).__init__(parent)
+	def __init__(self, parent, frame):
+		super(subPanel, self).__init__(parent)
 
 		self.Title = u'Lights: Controllers'
-		self.mdl = None
-		self.session = session
-		self.mdl = dataModel(data, self.session)
+
+		self.parent = parent
+		self.frame = frame
+		self.session = None
+		self.data = None
+		self.mdl = dataModel(self.data, self.session)
 		self.dataViewCtrl.AssociateModel(self.mdl)
 
 		# Define the columns that we want in the view.  Notice the
@@ -48,11 +53,10 @@ class subFrame(SF):
 		c1 = self.dataViewCtrl.AppendTextColumn("Name", 1, width=100, mode=dv.DATAVIEW_CELL_EDITABLE)
 		c2 = self.dataViewCtrl.AppendTextColumn("IP", 2, width=35, mode=dv.DATAVIEW_CELL_EDITABLE)
 		c3 = self.dataViewCtrl.AppendTextColumn("Univ", 3, width=35, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c4 = self.dataViewCtrl.AppendTextColumn('Seq', 4, width=40, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c5 = self.dataViewCtrl.AppendTextColumn('ModelID', 5, width=60, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c6 = self.dataViewCtrl.AppendTextColumn('Mfg', 6, width=100, mode=dv.DATAVIEW_CELL_INERT)
-		c7 = self.dataViewCtrl.AppendTextColumn('Model', 7, width=100, mode=dv.DATAVIEW_CELL_INERT)
-		c8 = self.dataViewCtrl.AppendTextColumn('Con', 8, width=35, mode=dv.DATAVIEW_CELL_INERT)
+		c4 = self.dataViewCtrl.AppendTextColumn('ModelID', 4, width=60, mode=dv.DATAVIEW_CELL_EDITABLE)
+		c5 = self.dataViewCtrl.AppendTextColumn('Mfg', 5, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c6 = self.dataViewCtrl.AppendTextColumn('Model', 6, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c7 = self.dataViewCtrl.AppendTextColumn('Con', 7, width=35, mode=dv.DATAVIEW_CELL_INERT)
 
 		c1.Alignment = wx.ALIGN_LEFT
 		c2.Alignment = wx.ALIGN_CENTER
@@ -61,34 +65,44 @@ class subFrame(SF):
 		c5.Alignment = wx.ALIGN_RIGHT
 		c6.Alignment = wx.ALIGN_LEFT
 		c7.Alignment = wx.ALIGN_LEFT
-		c8.Alignment = wx.ALIGN_RIGHT
 
 		# Set some additional attributes for all the columns
 		for c in self.dataViewCtrl.Columns:
 			c.Sortable = True
 			c.Reorderable = True
 
+		self.getData()
+		return
+
+	def getData(self):
+		self.session = Session()
+		self.data = self.session.query(Controller).all()
+		self.mdl.session = self.session
+		self.mdl.data = self.data
+		self.mdl.Cleared()
 		return
 
 	# Handlers for subPanel events.
-	def fileExit( self, event ):
-		self.Close()
+	# Handlers for subPanel events.
+	def Exit(self, event):
+		log.trace("Exit")
+		self.frame.Close()
 
-	def addItem( self, event ):
-		# TODO: Implement addProp
-		pass
+	def addItem(self, event):
+		dlg = addController(self)
+		dlg.ShowModal()
+		dlg.Destroy()
+		self.getData()
+		self.Refresh()
 
-	def delItem( self, event ):
-		# TODO: Implement delProp
-		pass
-
-	def saveRecs( self, event ):
-		# TODO: Implement saveProp
-		pass
-
-	def refreshDB( self, event ):
-		#self.mdl.Cleared()
-		self.Show()
+	def delItem(self, event):
+		if not self.dataViewCtrl.HasSelection():
+			wx.MessageBox("Nothing selected, unable to delete", "Lights: Controller")
+			return
+		current = self.dataViewCtrl.GetSelection()
+		self.mdl.delItem(current)
+		self.getData()
+		self.Refresh()
 
 
 if __name__ == '__main__':
@@ -97,11 +111,11 @@ if __name__ == '__main__':
 	lights = Lights()
 	lights.ParseArgs(argv[1:], test=True)
 
-	from lights import Session, Controllers
+	from lights.GUI.lights import mainFrame
 
 	app = wx.App(False)
-	session = Session()
-	data = session.query(Controllers).all()
-	sf = subFrame(None, data, session)
-	sf.Show()
+	mf = mainFrame(None)
+	sp = subPanel(mf.main_notebook, mf)
+	mf.main_notebook.AddPage(sp, "Controller")
+	mf.Show()
 	app.MainLoop()

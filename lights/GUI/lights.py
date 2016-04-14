@@ -85,11 +85,11 @@ class subPanel ( wx.Panel ):
 		bSizer = wx.BoxSizer( wx.VERTICAL )
 		
 		self.toolbar = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.add = self.toolbar.AddLabelTool( wx.ID_ANY, u"Add", wx.Bitmap( u"../../formbuilder/imagesJXIK9OWD.jpg", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		self.add = self.toolbar.AddLabelTool( wx.ID_ANY, u"Add", wx.Bitmap( u"../icons/add_star-22.jpg", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
-		self.delete = self.toolbar.AddLabelTool( wx.ID_ANY, u"Delete", wx.Bitmap( u"../../formbuilder/delete.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		self.delete = self.toolbar.AddLabelTool( wx.ID_ANY, u"Delete", wx.Bitmap( u"../icons/delete.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
-		self.exit = self.toolbar.AddLabelTool( wx.ID_ANY, u"Exit", wx.Bitmap( u"../../formbuilder/exit-22.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		self.exit = self.toolbar.AddLabelTool( wx.ID_ANY, u"Exit", wx.Bitmap( u"../icons/exit-22.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.toolbar.Realize() 
 		
@@ -230,6 +230,94 @@ class addProp ( wx.Dialog ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def addProp( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class addController
+###########################################################################
+
+class addController ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Lights: Add Controller", pos = wx.DefaultPosition, size = wx.Size( 645,291 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer3 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, u"Name:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText1.Wrap( -1 )
+		bSizer5.Add( self.m_staticText1, 0, wx.ALL, 5 )
+		
+		self.name = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer5.Add( self.name, 1, wx.ALL, 5 )
+		
+		
+		bSizer3.Add( bSizer5, 0, wx.EXPAND, 5 )
+		
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Details" ), wx.VERTICAL )
+		
+		fgSizer1 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer1.SetFlexibleDirection( wx.BOTH )
+		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText2 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"IP Addr", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText2.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText2, 0, wx.ALL, 5 )
+		
+		self.ipaddr = wx.SpinCtrl( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 254, 230 )
+		fgSizer1.Add( self.ipaddr, 1, wx.ALL, 5 )
+		
+		self.m_staticText14 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Universe", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText14.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText14, 0, wx.ALL, 5 )
+		
+		self.universe = wx.SpinCtrl( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 9999, 1 )
+		fgSizer1.Add( self.universe, 0, wx.ALL, 5 )
+		
+		
+		sbSizer2.Add( fgSizer1, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer3.Add( sbSizer2, 0, wx.EXPAND, 5 )
+		
+		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Model" ), wx.HORIZONTAL )
+		
+		modelChoices = []
+		self.model = wx.ComboBox( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, modelChoices, 0 )
+		self.model.SetSelection( 0 )
+		sbSizer4.Add( self.model, 1, wx.ALL, 5 )
+		
+		
+		bSizer3.Add( sbSizer4, 0, wx.EXPAND, 5 )
+		
+		m_sdbSizer1 = wx.StdDialogButtonSizer()
+		self.m_sdbSizer1OK = wx.Button( self, wx.ID_OK )
+		m_sdbSizer1.AddButton( self.m_sdbSizer1OK )
+		self.m_sdbSizer1Cancel = wx.Button( self, wx.ID_CANCEL )
+		m_sdbSizer1.AddButton( self.m_sdbSizer1Cancel )
+		m_sdbSizer1.Realize();
+		
+		bSizer3.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
+		
+		
+		self.SetSizer( bSizer3 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.m_sdbSizer1OK.Bind( wx.EVT_BUTTON, self.addItem )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def addItem( self, event ):
 		event.Skip()
 	
 

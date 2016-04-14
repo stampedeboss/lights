@@ -23,7 +23,7 @@ import wx
 import logging
 import wx.dataview as dv
 
-from lights import Controllers
+from lights import Controller, Connector
 
 __pgmname__ = 'datamodel'
 
@@ -54,7 +54,7 @@ class dataModel(dv.PyDataViewModel):
 	def GetColumnCount(self):
 		# Report how many columns this model provides data for.
 		log.trace("GetColumnCount")
-		return 9
+		return 8
 
 	def GetColumnType(self, col):
 		# Map the data column numbers to the data type
@@ -79,7 +79,7 @@ class dataModel(dv.PyDataViewModel):
 		# item, so we'll use the genre objects as its children and they will
 		# end up being the collection of visible roots in our tree.
 		log.trace("GetChildren")
-		if not parent:
+		if self.data and not parent:
 			for item in self.data:
 				children.append(self.ObjectToItem(item))
 			return len(self.data)
@@ -90,17 +90,16 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("GetValue")
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Controllers):
+		if isinstance(node, Controller):
 			mapper = {0: str(node.ID),
 					  1: node.Name,
 					  2: str(node.IP_Address),
 					  3: str(node.Universe),
-					  4: str(node.Seq),
-					  5: str(node.CtlrModelID),
-			          6: str(node.model.Mfg),
-					  7: str(node.model.Model),
-					  8: str(node.model.Outputs)
-			          }
+					  4: str(node.ModelID),
+					  5: str(node.model.Mfg),
+					  6: str(node.model.Model),
+					  7: str(node.model.Outputs)
+					  }
 			return mapper[col]
 		else:
 			raise RuntimeError("unknown node type")
@@ -110,7 +109,7 @@ class dataModel(dv.PyDataViewModel):
 		log.trace("SetValue: %s" % value)
 
 		node = self.ItemToObject(item)
-		if isinstance(node, Controllers):
+		if isinstance(node, Controller):
 			self.session.begin(subtransactions=True)
 			if col == 1:
 				node.Name = value
@@ -119,28 +118,27 @@ class dataModel(dv.PyDataViewModel):
 			elif col == 3:
 				node.Universe = value
 			elif col == 4:
-				node.Seq = value
-			elif col == 5:
-				node.CtlrModelID = value
+				node.ModelID = value
 			self.session.commit()
 
-	def addItem(self, item):
+	def addItem(self, item, outputs):
 		self.session.begin(subtransactions=True)
-		self.session.add(item)
+		ctlr = Controller(**item)
+		self.session.add(ctlr)
+		self.session.flush()
+		for i in range(1, outputs + 1):
+			con = Connector()
+			con.ControllerID = ctlr.ID
+			con.Connector = i
+			self.session.add(con)
 		self.session.commit()
 
-	def delItem(self):
-		# TODO: Implement delItem Prop
-		pass
-
-	def saveRecs(self):
-		# TODO: Implement saveRecs Prop
-		pass
-
-	def refreshDB(self):
-		# self.mdl.Cleared()
-		self.Show()
-		print
+	def delItem(self, item):
+		node = self.ItemToObject(item)
+		self.session.begin(subtransactions=True)
+		self.session.query(Connector).filter(Connector.ControllerID == node.ID).delete()
+		self.session.delete(node)
+		self.session.commit()
 
 
 if __name__ == '__main__':
@@ -154,7 +152,7 @@ if __name__ == '__main__':
 	app = wx.App(False)
 	# Create a session to use the tables
 	session = Session()
-	db = session.query(Controllers).all()
+	db = session.query(Controller).all()
 
 	mdl = dataModel(db, session)
 	print mdl

@@ -51,22 +51,18 @@ class subPanel(SP):
 		else:
 			self.dataViewCtrl.AppendTextColumn("Name", 0, width=150)
 
-		c1 = self.dataViewCtrl.AppendTextColumn("CtlrID", 2, width=35, mode=dv.DATAVIEW_CELL_INERT)
-		c2 = self.dataViewCtrl.AppendTextColumn("Seq", 3, width=35, mode=dv.DATAVIEW_CELL_EDITABLE)
-		c3 = self.dataViewCtrl.AppendTextColumn("Name", 4, width=100, mode=dv.DATAVIEW_CELL_INERT)
-		c4 = self.dataViewCtrl.AppendTextColumn("Mfg", 5, width=75, mode=dv.DATAVIEW_CELL_INERT)
-		c5 = self.dataViewCtrl.AppendTextColumn("Mdl", 6, width=75, mode=dv.DATAVIEW_CELL_INERT)
-		c6 = self.dataViewCtrl.AppendTextColumn("MdlID", 7, width=35, mode=dv.DATAVIEW_CELL_INERT)
-		c7 = self.dataViewCtrl.AppendTextColumn("IP", 8, width=35, mode=dv.DATAVIEW_CELL_INERT)
-		c8 = self.dataViewCtrl.AppendTextColumn("Univ", 9, width=35, mode=dv.DATAVIEW_CELL_INERT)
-		c1.Alignment = wx.ALIGN_RIGHT
-		c2.Alignment = wx.ALIGN_RIGHT
+		c1 = self.dataViewCtrl.AppendTextColumn("Name", 1, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c2 = self.dataViewCtrl.AppendTextColumn("Seq", 2, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
+		c3 = self.dataViewCtrl.AppendTextColumn("Mfg", 3, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c4 = self.dataViewCtrl.AppendTextColumn("Mdl", 4, width=100, mode=dv.DATAVIEW_CELL_INERT)
+		c5 = self.dataViewCtrl.AppendTextColumn("IP", 5, width=50, mode=dv.DATAVIEW_CELL_INERT)
+		c6 = self.dataViewCtrl.AppendTextColumn("Univ", 6, width=50, mode=dv.DATAVIEW_CELL_INERT)
+		c1.Alignment = wx.ALIGN_LEFT
+		c2.Alignment = wx.ALIGN_CENTER
 		c3.Alignment = wx.ALIGN_LEFT
 		c4.Alignment = wx.ALIGN_LEFT
-		c5.Alignment = wx.ALIGN_LEFT
-		c6.Alignment = wx.ALIGN_RIGHT
-		c7.Alignment = wx.ALIGN_RIGHT
-		c8.Alignment = wx.ALIGN_RIGHT
+		c5.Alignment = wx.ALIGN_CENTER
+		c6.Alignment = wx.ALIGN_CENTER
 
 		# Set some additional attributes for all the columns
 		for c in self.dataViewCtrl.Columns:

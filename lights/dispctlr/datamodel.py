@@ -55,7 +55,7 @@ class dataModel(dv.PyDataViewModel):
 	def GetColumnCount(self):
 		# Report how many columns this model provides data for.
 		log.trace("GetColumnCount")
-		return 9
+		return 7
 
 	def GetColumnType(self, col):
 		# Map the data column numbers to the data type
@@ -67,6 +67,9 @@ class dataModel(dv.PyDataViewModel):
 		# The hidden root is a container
 		log.trace("IsContainer")
 		if not item:
+			return True
+		node = self.ItemToObject(item)
+		if isinstance(node, Display):
 			return True
 		return False
 
@@ -82,7 +85,7 @@ class dataModel(dv.PyDataViewModel):
 			return dv.NullDataViewItem
 		elif isinstance(node, DisplayController):
 			for g in self.data:
-				if g.DisplayID == node.ID:
+				if g.DisplayID == node.DisplayID:
 					return self.ObjectToItem(g.display)
 
 	def GetChildren(self, parent, children):
@@ -115,8 +118,8 @@ class dataModel(dv.PyDataViewModel):
 		if isinstance(node, Display):
 			for ctlr in self.data:
 				if ctlr.DisplayID == node.ID:
-					children.append(self.ObjectToItem(ctlr.controller))
-			return len(self.data)
+					children.append(self.ObjectToItem(ctlr))
+			return len(children)
 		return 0
 
 	def GetValue(self, item, col):
@@ -133,14 +136,12 @@ class dataModel(dv.PyDataViewModel):
 			return mapper[col]
 		if isinstance(node, DisplayController):
 			mapper = {  0: node.display.DisplayName,
-						1: node.ControllerID,
+						1: node.controller.Name,
 						2: node.Sequence,
-						3: node.controller.ControllerName,
-						4: node.controller.model.ControllerMfg,
-						5: node.controller.model.ControllerModel,
-						6: node.controller.ModelID,
-						7: node.controller.IP_Address,
-						8: node.controller.Universe
+						3: node.controller.model.Mfg,
+						4: node.controller.model.Model,
+						5: node.controller.IP_Address,
+						6: node.controller.Universe
 			          }
 			return mapper[col]
 		else:
